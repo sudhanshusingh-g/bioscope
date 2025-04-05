@@ -24,7 +24,7 @@ const loginUser = async (req, res) => {
   if (!isMatch) {
     res.status(400).json({ message: "Invalid cred" });
   }
-  const payload = { existingUser: existingUser.name };
+  const payload = { email: existingUser.email };
   const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "1d" });
 
   res.cookie("token", token, {
@@ -37,7 +37,8 @@ const loginUser = async (req, res) => {
 };
 
 const currentUser=(req,res)=>{
-  res.send("Current user");
+  const {existingUser}=req.user;
+  res.send(existingUser);
 };
 
 export { createUser, loginUser,currentUser };
