@@ -1,30 +1,57 @@
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import userDTO from "../dtos/userDTO.js";
 
-const users = [];
 
 const createUser = async (req, res) => {
   const { name, email, password } = req.body;
-  // Hash password
-  const salt = await bcrypt.genSalt(12);
-  const hashedPassword = await bcrypt.hash(password, salt);
-  const user = { name, email, hashedPassword };
-  users.push(user);
-  res.status(200).json({
+
+  if (!name || !email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required." });
+  }
+  // Validation for existing user
+  const existingUser = await User.findOne({ email });
+  if (existingUser) {
+    res.status(409).json({
+      success: false,
+      message: "User already exist.Please login",
+    });
+  }
+
+  const user = new User({
     name,
     email,
-    hashedPassword,
+    password,
+  });
+  await user.save();
+  res.status(201).json({
+    success: true,
+    message: "User registered successfully.",
   });
 };
 
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  const existingUser = users.find((user) => user.email === email);
-  const isMatch = bcrypt.compare(password, existingUser.hashedPassword);
-  if (!isMatch) {
-    res.status(400).json({ message: "Invalid cred" });
+  if (!email || !password) {
+    return res
+      .status(400)
+      .json({ success: false, message: "All fields are required." });
   }
-  const payload = { email: existingUser.email };
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res
+      .status(401)
+      .json({ success: false, message: "User not found. Please register." });
+  }
+  const isPasswordMatch = await user.comparePassword(password);
+  if (!isPasswordMatch) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Incorrect password!Try again" });
+  }
+  const payload = userDTO(user);
   const token = jwt.sign(payload, process.env.SECRET_KEY, { expiresIn: "1d" });
 
   res.cookie("token", token, {
@@ -33,12 +60,12 @@ const loginUser = async (req, res) => {
     sameSite: "strict",
     maxAge: 3600000,
   });
-  res.status(200).json({ message: "Logged in", token });
+  res.status(200).json({ success: true, message: "Logged in",user:payload,token:token });
 };
 
-const currentUser=(req,res)=>{
-  const {existingUser}=req.user;
-  res.send(existingUser);
+const currentUser = (req, res) => {
+  const  user  = req.user;
+  res.send(user);
 };
 
-export { createUser, loginUser,currentUser };
+export { createUser, loginUser, currentUser };

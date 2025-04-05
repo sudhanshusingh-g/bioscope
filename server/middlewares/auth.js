@@ -11,7 +11,6 @@ const auth = (req, res, next) => {
   try {
     const user = jwt.verify(token, process.env.SECRET_KEY);
     req.user=user;
-    console.log(req.user);
     next();
   } catch (error) {
     return res.status(403).json({
