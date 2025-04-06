@@ -1,14 +1,16 @@
 import { useState } from "react";
 import Button from "../components/Button";
 import Input from "../components/Input";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { LoginUser } from "../api/user";
 
-function LoginForm() {
+function LoginForm({toast}) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
+  const navigate=useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,12 +35,21 @@ function LoginForm() {
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-  const handleSubmit = (event) => {
+  const handleSubmit = async(event) => {
     event.preventDefault();
     if (!validateInput()) return;
-    setTimeout(() => {
-      console.log(formData);
-    }, 2000);
+    try {
+      const data=await LoginUser(formData);
+      if(data.success){
+        toast.success(data.message);
+        navigate("/");
+      }
+      else{
+        toast.error(data.message);
+      }
+    } catch (error) {
+      toast.error(data.message);
+    }
   };
   return (
     <form onSubmit={handleSubmit} className="flex flex-col space-y-2 w-full">

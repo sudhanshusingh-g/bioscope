@@ -1,6 +1,7 @@
-import {Link} from "react-router-dom";
+import {Link, useOutletContext} from "react-router-dom";
 
 function HomePage() {
+  const user=useOutletContext();
   return (
     <div>
       <div>
@@ -13,7 +14,8 @@ function HomePage() {
       </div>
       <input type="search" name="search" id="search" />
 
-      <p>Movies List</p>
+      <p>Movies List for {user?.name}</p>
+      <img src={user.profileImage} alt={user.name} />
     </div>
   );
 }

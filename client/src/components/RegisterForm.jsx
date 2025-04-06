@@ -1,14 +1,18 @@
 import { useState } from "react";
 import Input from "./Input";
 import Button from "./Button";
+import { RegisterUser } from "../api/user";
+import { useNavigate } from "react-router-dom";
 
-function RegisterForm() {
+function RegisterForm({toast}) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+
+  const navigate=useNavigate();
 
   const [errors, setErrors] = useState({});
   const handleChange = (e) => {
@@ -23,23 +27,39 @@ function RegisterForm() {
     }
   };
   const validateForm=()=>{
-    let tempErrors={};
-    if(!formData.email){
-      tempErrors.email="Enter a valid email";
-    }
-    if(formData.password.length <8){
-      tempErrors.password="Password is too small.Try again"
-    }
+      let tempErrors = {};
+      if (!formData.email) {
+        tempErrors.email = "Enter a valid email";
+      }
+      if (formData.password.length < 8) {
+        tempErrors.password = "Password is too small. Try again";
+      }
+      if (formData.password !== formData.confirmPassword) {
+        tempErrors.confirmPassword = "Passwords do not match";
+      }
+
+      setErrors(tempErrors);
+      return Object.keys(tempErrors).length === 0;
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
 
-    if (!validateForm) return;
+    if (!validateForm()) return;
 
-    setTimeout(()=>{
-      console.log(formData);
-    },2000)
+    try {
+      const data=await RegisterUser(formData);
+      if(data.success){
+        toast.success(data.message);
+        navigate("/login");
+        setFormData({ name: "", email: "", password: "", confirmPassword: "" });
+      }
+      else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -59,6 +79,7 @@ function RegisterForm() {
         value={formData.email}
         onChange={handleChange}
         required
+        error={errors.email}
       />
       <Input
         label="Password"
@@ -67,6 +88,7 @@ function RegisterForm() {
         value={formData.password}
         onChange={handleChange}
         required
+        error={errors.password}
       />
       <Input
         label="Confirm Password"
@@ -75,6 +97,7 @@ function RegisterForm() {
         value={formData.confirmPassword}
         onChange={handleChange}
         required
+        error={errors.confirmPassword}
       />
       <Button
         type="submit"

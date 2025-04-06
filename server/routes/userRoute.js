@@ -3,8 +3,8 @@ import { createUser, loginUser,currentUser } from "../controllers/userController
 import auth from "../middlewares/auth.js";
 const router=express.Router();
 
-router.post("/register",createUser);
-router.post("/login" ,loginUser);
-router.get("/profile",auth,currentUser);
+router.post("/users/register",createUser);
+router.post("/users/login" ,loginUser);
+router.get("/users/profile",auth,currentUser);
 
 export default router;
