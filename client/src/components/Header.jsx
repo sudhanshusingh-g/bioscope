@@ -5,7 +5,7 @@ function Header() {
   return (
     <header>
       <nav className='flex justify-between cursor-pointer'>
-        <Logo />
+        <Logo source={"/bioscope-logo.png"} className='h-14 w-14' />
 
         <div className='flex items-center justify-center space-x-2'>
           <HiMenuAlt1 />

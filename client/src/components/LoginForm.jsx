@@ -2,15 +2,16 @@ import { useState } from "react";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { useNavigate, Link } from "react-router-dom";
-import { LoginUser } from "../api/user";
+import { loginUser } from "../api/user";
 
-function LoginForm({toast}) {
+function LoginForm({ toast }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState({});
-  const navigate=useNavigate();
+  const navigate = useNavigate();
+
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -35,16 +36,16 @@ function LoginForm({toast}) {
     setErrors(tempErrors);
     return Object.keys(tempErrors).length === 0;
   };
-  const handleSubmit = async(event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateInput()) return;
     try {
-      const data=await LoginUser(formData);
-      if(data.success){
+      const data = await loginUser(formData);
+      if (data.success) {
         toast.success(data.message);
+        localStorage.setItem("token",data.token);
         navigate("/");
-      }
-      else{
+      } else {
         toast.error(data.message);
       }
     } catch (error) {

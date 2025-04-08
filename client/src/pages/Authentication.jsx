@@ -3,12 +3,17 @@ import LoginForm from "../components/LoginForm";
 import RegisterForm from "../components/RegisterForm";
 import Logo from "../components/Logo";
 import { ToastContainer,toast } from "react-toastify";
+import { useSelector } from "react-redux";
 
 function Authentication() {
+
+  const {user}=useSelector((state)=>state.user);
 
   const currentEndpoint = window.location.pathname.split("/")[1];
 
   const navigate=useNavigate();
+
+  
 
   return (
     <>

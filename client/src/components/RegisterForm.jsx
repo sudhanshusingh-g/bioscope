@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Input from "./Input";
 import Button from "./Button";
-import { RegisterUser } from "../api/user";
+import { registerUser } from "../api/user";
 import { useNavigate } from "react-router-dom";
 
 function RegisterForm({toast}) {
@@ -48,7 +48,7 @@ function RegisterForm({toast}) {
     if (!validateForm()) return;
 
     try {
-      const data=await RegisterUser(formData);
+      const data=await registerUser(formData);
       if(data.success){
         toast.success(data.message);
         navigate("/login");

@@ -1,6 +1,5 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
-import userDTO from "../dtos/userDTO.js";
 
 const createUser = async (req, res, next) => {
   try {
@@ -58,31 +57,26 @@ const loginUser = async (req, res, next) => {
       });
     }
 
-    const payload = userDTO(user);
+    const payload ={id:user._id};
     const token = jwt.sign(payload, process.env.SECRET_KEY, {
       expiresIn: "1d",
-    });
-
-    res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "strict",
-      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
       success: true,
       message: "User successfully logged in.",
-      user:payload
+      user:payload,
+      token:token
     });
   } catch (err) {
     next(err);
   }
 };
 
-const currentUser = (req, res, next) => {
+const currentUser = async (req, res, next) => {
   try {
-    const user = req.user;
+    const _id = req.user.id;
+    const user = await User.findOne({ _id }).select("-password");
     return res.status(200).json({success:true,message:`${user.name} is logged in`,data:user});
   } catch (err) {
     next(err);

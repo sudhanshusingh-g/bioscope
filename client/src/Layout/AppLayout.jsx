@@ -1,47 +1,60 @@
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
-import Header from "../components/Header";
-import Navigation from "../components/Navigation";
 import { useEffect, useState } from "react";
-import { CurrentUser } from "../api/user";
+import { useDispatch, useSelector } from "react-redux";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { currentUser } from "../api/user";
+import { hideLoading, showLoading } from "../store/slices/loaderSlice";
+import SideNav from "../components/SideNav";
+import Header from "../components/Header";
+import {activeUser} from "../store/slices/userSlice";
 
 function AppLayout() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true); // prevent premature rendering
-
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { loader } = useSelector((state) => state.loader);
+
+
 
   useEffect(() => {
-    const loggedUser = async () => {
+    // Get current user
+    const getUser = async () => {
+      dispatch(showLoading());
       try {
-        const response = await CurrentUser();
-        if (response.success) {
-          setUser(response.data);
+        const response = await currentUser();
+        if (response) {
+          dispatch(activeUser(response.data));
         } else {
+          localStorage.removeItem("token");
           navigate("/login");
         }
       } catch (error) {
-        console.error(error);
+        localStorage.removeItem("token");
         navigate("/login");
       } finally {
-        setLoading(false);
+        dispatch(hideLoading());
       }
     };
+    if (localStorage.getItem("token")) {
+      getUser();
+    } else {
+      navigate("/login");
+    }
+  }, []);
 
-    loggedUser();
-  }, [navigate]);
+  if (loader)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
+      </div>
+    );
 
-  if (loading) return null; // or add a spinner
-
-  return user ? (
+  return (
     <>
       <Header />
       <div>
-        <Navigation />
-        <Outlet context={user}/>
+        <SideNav />
+        <Outlet/>
       </div>
     </>
-  ) : (
-    <Navigate to={"/login"} />
   );
 }
 

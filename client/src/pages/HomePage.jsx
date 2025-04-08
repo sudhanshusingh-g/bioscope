@@ -1,7 +1,8 @@
-import {Link, useOutletContext} from "react-router-dom";
+import { useSelector } from "react-redux";
+import {Link} from "react-router-dom";
 
 function HomePage() {
-  const user=useOutletContext();
+  const {user}=useSelector((state)=>state.user);
   return (
     <div>
       <div>
@@ -15,7 +16,7 @@ function HomePage() {
       <input type="search" name="search" id="search" />
 
       <p>Movies List for {user?.name}</p>
-      <img src={user.profileImage} alt={user.name} />
+      <img src={user?.profileImage} alt={user?.name} />
     </div>
   );
 }

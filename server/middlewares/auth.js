@@ -1,13 +1,14 @@
 import jwt from "jsonwebtoken";
 
 const auth = (req, res, next) => {
-  const token = req.cookies.token;
-  if(!token){
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({
-      success:false,
-      message:"Not authenticated",
+      success: false,
+      message: "Not authenticated",
     });
   }
+   const token = authHeader.split(" ")[1];
   try {
     const user = jwt.verify(token, process.env.SECRET_KEY);
     req.user=user;
