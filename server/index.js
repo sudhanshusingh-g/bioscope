@@ -1,9 +1,10 @@
 import express from "express";
 import cors from "cors";
-
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import dbConfig from "./config/dbConfig.js";
-import router from "./routes/userRoute.js";
+import userRoute from "./routes/userRoute.js";
+import authRoute from "./routes/authRoute.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
 dotenv.config();
@@ -13,15 +14,22 @@ const PORT = 8000;
 // DB connection
 dbConfig();
 
+// middlewares
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+    credentials: true,
   })
 );
 
+app.use(cookieParser());
+
 app.use(express.json());
 // Routes
-app.use("/api/v1", router);
+app.use("/api/auth", authRoute);
+app.use("/api/user", userRoute);
+app.use("/api/admin", userRoute);
+app.use("/api/partner", userRoute);
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,

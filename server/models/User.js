@@ -48,7 +48,7 @@ const userSchema = new mongoose.Schema(
     },
     roles: {
       type: [String],
-      enum: ["user", "admin", "owner"],
+      enum: ["user", "admin", "partner"],
       default: ["user"],
     },
     profileDeleted:{
@@ -64,7 +64,13 @@ const userSchema = new mongoose.Schema(
 
 
 userSchema.pre("save", async function (next) {
+  if (!this.roles.includes("user")) {
+    this.roles.push("user");
+  }
+
+  this.roles = [...new Set(this.roles)];
   if (!this.isModified("password")) return next();
+  
   try {
     const salt = await bcrypt.genSalt(12);
     this.password = await bcrypt.hash(this.password, salt);
