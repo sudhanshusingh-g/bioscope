@@ -5,6 +5,6 @@ import loaderReducer from "./slices/loaderSlice";
 export const store=configureStore({
     reducer:{
         user:userReducer,
-        loader:loaderReducer,
+        loading:loaderReducer,
     }
 })
