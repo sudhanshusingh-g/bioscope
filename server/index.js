@@ -5,6 +5,8 @@ import dotenv from "dotenv";
 import dbConfig from "./config/dbConfig.js";
 import userRoute from "./routes/userRoute.js";
 import authRoute from "./routes/authRoute.js";
+import adminRoute from "./routes/adminRoute.js";
+import partnerRoute from "./routes/partnerRoute.js";
 import errorHandler from "./middlewares/errorHandler.js";
 
 dotenv.config();
@@ -28,8 +30,8 @@ app.use(express.json());
 // Routes
 app.use("/api/auth", authRoute);
 app.use("/api/user", userRoute);
-app.use("/api/admin", userRoute);
-app.use("/api/partner", userRoute);
+app.use("/api/admin", adminRoute);
+app.use("/api/partner", partnerRoute);
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
